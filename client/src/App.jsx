@@ -1,10 +1,10 @@
+import Routes from "./routes";
 function App() {
-
   return (
     <>
-     Hello
+      <Routes/>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
