@@ -32,10 +32,12 @@ const comments = pgTable('comments', {
     userId: uuid().references(() => users.id,{onDelete: 'cascade'}),
     blogId: uuid().references(() => blogs.id,{onDelete: 'cascade'}),
     content: text().notNull(),
-    commentedAt: timestamp().defaultNow()
+    commentedAt: timestamp().defaultNow(),
+    deletedAt:timestamp(),
+    isCommented:boolean().default(true)
 })
 
-const reactions = pgTable('interactions', {
+const reactions = pgTable('reactions', {
     id: uuid().primaryKey().defaultRandom(),
     userId: uuid().references(() => users.id,{onDelete: 'cascade'}),
     blogId: uuid().references(() => blogs.id,{onDelete: 'cascade'}),
