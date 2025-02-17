@@ -14,10 +14,10 @@ const getAllUserPage = async (page) => {
 
 // Add a new user
 const createUser = async (req) => {
-  const {name,surname,email,password,avatar,dateOfBirth} = req
+  const { firstName,lastName,email,password,avatar,dateOfBirth} = req
   const salt = await bcrypt.genSalt()
   const hashedPassword = await bcrypt.hash(password, salt)
-  return await userRepo.addUser(name, surname,email, hashedPassword,avatar,dateOfBirth)
+  return await userRepo.addUser( firstName,lastName,email, hashedPassword,avatar,dateOfBirth)
 }
 
 // Get user by ID

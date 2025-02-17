@@ -44,8 +44,8 @@ const getUserById = async (req, res) => {
 // POST - Add new User
 const addUser = async (req, res) => {
   try {
-    const { name,surname, email, password,avatar,dateOfBirth } = req.body
-    if ( !surname || !email || !password ||!avatar || !dateOfBirth){
+    const { firstName,lastName, email, password,avatar,dateOfBirth } = req.body
+    if (!firstName|| !lastName || !email || !password ||!avatar || !dateOfBirth){
       return res.status(400).json({ error: 'Name,Surname,email,avatar,dateofbirth and password are required' })
     } 
     const newUser = await userService.createUser(req.body)
