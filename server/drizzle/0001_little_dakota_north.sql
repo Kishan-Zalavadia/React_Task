@@ -1,0 +1,1 @@
+ALTER TABLE "blogs" ADD COLUMN "isActive" boolean DEFAULT false NOT NULL;
