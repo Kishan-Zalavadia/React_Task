@@ -1,15 +1,13 @@
 const userRepo = require('./userRespository')
 const bcrypt = require('bcrypt')
 
-// Get all users
-const getAllUsers = async () => {
-  return await userRepo.allUsers()
-}
-
 // Get all users Page
-const getAllUserPage = async (page) => {
-  const offset = (page-1)*10
-  return await userRepo.allUserPage(offset)
+const getAllUserPage = async (req) => {
+  const {page,size} = req
+  const numsize = size || null
+  const offset = (page-1) * numsize || 0
+  console.log(typeof numsize,typeof offset)
+  return await userRepo.allUserPage(size,offset)
 }
 
 // Add a new user
@@ -21,7 +19,7 @@ const createUser = async (req) => {
 }
 
 // Get user by ID
-const getUser = async (id) => {
+const getUserById = async (id) => {
   return await userRepo.getUserById(id)
 }
 
@@ -32,8 +30,8 @@ const deleteUser = async (id) => {
 
 // Update user by ID
 const updateUser = async (id, req) => {
-    const{name,surname,email,avatar} = req
-  return await userRepo.updateUser(id,name,surname,email,avatar)
+    const{firstName,lastName,email,avatar} = req
+  return await userRepo.updateUser(id,firstName,lastName,email,avatar)
 }
 
-module.exports = { getAllUsers, getUser, createUser, deleteUser, updateUser , getAllUserPage}
+module.exports = { getUserById, createUser, deleteUser, updateUser , getAllUserPage}

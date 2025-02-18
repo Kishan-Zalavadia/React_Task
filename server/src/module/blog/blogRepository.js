@@ -1,13 +1,6 @@
 const { users, blogs, comments, reactions } = require('./../../db/schema')
 const db = require('./../../config/index')
-const { eq, sql, ne } = require('drizzle-orm')
-
-// // Get all blogs
-// const allBlogs = async () => {
-//   const blog = await db.select().from(blogs);
-//   console.log(blog);
-//   return blog; 
-// }
+const { eq, sql, ne, and } = require('drizzle-orm')
 
 const getBlogByUserId = async (id, numsize, offset) => {
   const blog = await db.select({
@@ -19,7 +12,7 @@ const getBlogByUserId = async (id, numsize, offset) => {
     isActive: blogs.isActive,
     likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`,
     dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`,
-    commentsCount: sql`COUNT(DISTINCT comments.id)`
+    commentsCount: sql`COUNT(DISTINCT comments.id) FILTER (WHERE ${comments.isCommented} = true)`
   })
     .from(blogs)
     .leftJoin(reactions, eq(blogs.id, reactions.blogId))
@@ -28,7 +21,7 @@ const getBlogByUserId = async (id, numsize, offset) => {
     .groupBy(blogs.id)
     .limit(numsize)
     .offset(offset);
-
+    
   return blog
 }
 
@@ -46,7 +39,7 @@ const getAllBlogPage = async (numsize, offset) => {
     isActive: blogs.isActive,
     likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`, // Count likes
     dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`, // Count dislikes
-    commentsCount: sql`COUNT(DISTINCT comments.id)` // Count unique comments
+    commentsCount: sql`COUNT(DISTINCT comments.id) FILTER (WHERE ${comments.isCommented} = true)` // Count unique comments
   }).from(blogs)
     .leftJoin(users, eq(blogs.userId, users.id)) // Join users table
     .leftJoin(reactions, eq(blogs.id, reactions.blogId)) // Join interactions (likes)
@@ -71,7 +64,7 @@ const getBlogById = async (id) => {
     isActive: blogs.isActive,
     likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`, // Count likes
     dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`, // Count dislikes
-    commentsCount: sql`COUNT(DISTINCT comments.id)` // Count unique comments
+    commentsCount: sql`COUNT(DISTINCT comments.id)FILTER (WHERE ${comments.isCommented} = true)` // Count unique comments
   }).from(blogs)
     .leftJoin(users, eq(blogs.userId, users.id)) // Join users table
     .leftJoin(reactions, eq(blogs.id, reactions.blogId)) // Join interactions (likes)

@@ -52,6 +52,14 @@ const blogLikedByUsers = async(req,res)=>{
     }
 }
 
+// List of users who like blog by blogId
+const blogDislikedByUsers = async(req,res)=>{
+    try {
+        const users = await reactionServide.blogDislikedByUsers(req.params.id)
+        return res.status(200).json(users)
+    }catch(error){
+        return res.status(500).json({ error: error.message, stack: error.stack })
+    }
+}
 
-
-module.exports = {likeBlog,dislikeBlog,removeReaction,blogLikedByUsers}
+module.exports = {likeBlog,dislikeBlog,removeReaction,blogLikedByUsers,blogDislikedByUsers}

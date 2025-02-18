@@ -1,23 +1,18 @@
 const blogRepo = require('./blogRepository')
 
-// // Get all blogs
-// const getAllBlogs = async () => {
-//   return await blogRepo.allBlogs()
-// }
-
 // Get Blogs by userid
 const getBlogByUserId = async (id, query) => {
   const { size, page } = query
-  const numsize = Number(size)
-  const offset = (page - 1) * size
+  const numsize = Number(size) || null
+  const offset = (page - 1) * size || 0
   return await blogRepo.getBlogByUserId(id, numsize, offset);
 }
 
 // Get all blogs Page
 const getAllBlogPage = async (req) => {
   const { size, page } = req
-  const numsize = Number(size)
-  const offset = (page - 1) * size
+  const numsize = Number(size) || null
+  const offset = (page - 1) * size || 0
   return await blogRepo.getAllBlogPage(numsize, offset)
 }
 
@@ -29,8 +24,7 @@ const getBlogById = async (id) => {
 // Add New Blog
 const addBlog = async (req) => {
   const { userId, title, description } = req
-  const createdAt = new Date()
-  return await blogRepo.addBlog(userId, title, description, createdAt)
+  return await blogRepo.addBlog(userId, title, description)
 }
 
 // Delete blog by ID

@@ -18,10 +18,16 @@ const removeReaction = async(req)=>{
     return await reactionRepo.removeReaction(userId,blogId)
 }
 
-// All Users wholike blog
+// All Users who like blog
 const blogLikedByUsers = async(id)=>{
     const users = await reactionRepo.blogLikedByUsers(id)
     return users
 }
 
-module.exports = {likeBlog,dislikeBlog,removeReaction,blogLikedByUsers}
+// All Users who dislike blog
+const blogDislikedByUsers = async(id)=>{
+    const users = await reactionRepo.blogDislikedByUsers(id)
+    return users
+}
+
+module.exports = {likeBlog,dislikeBlog,removeReaction,blogLikedByUsers,blogDislikedByUsers}

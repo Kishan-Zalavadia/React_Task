@@ -1,18 +1,5 @@
 const blogService = require('./blogService')
 
-//GET all Blogs
-// const getAllBlogs = async (req, res) => {
-//   try {
-//     const blogs = await blogService.getAllBlogs()
-//     if(blogs.length == 0){
-//       return res.status(404).json({message:'No data available at this time'})
-//     }
-//     return res.status(200).json(blogs)
-//   } catch(error) {
-//     return res.status(500).json({ error: error.message, stack: error.stack })
-//   }
-// }
-
 // Get Blogs by userid
 const getBlogByUserId = async (req, res) => {
   try {
@@ -56,10 +43,6 @@ const getBlogById = async (req, res) => {
 // POST - Add new Blog
 const addBlog = async (req, res) => {
   try {
-    const { userId, title, description } = req.body
-    if (!userId || !title || !description) {
-      return res.status(400).json({ error: 'title and description are required' })
-    }
     const newBlog = await blogService.addBlog(req.body)
     return res.status(201).json(newBlog)
   } catch (error) {
@@ -85,10 +68,6 @@ const deleteBlog = async (req, res) => {
 const updateBlog = async (req, res) => {
   try {
     const { id } = req.params
-    const { title, description } = req.body
-    if (!title || !description) {
-      return res.status(400).json({ error: 'title are description required' })
-    }
     const updatedBlog = await blogService.updateBlog(id, req.body)
     if (updatedBlog.length == 0) {
       return res.status(404).json({ message: 'Blog not found' })

@@ -25,5 +25,11 @@ const blogLikedByUsers = async(id)=>{
     return res
 }
 
+// All User Who dislike blog by blog id
+const blogDislikedByUsers = async(id)=>{
+    const res =  await db.select({Name:users.firstName}).from(reactions).innerJoin(users,eq(users.id,reactions.userId)).where(and(eq(reactions.blogId,id),eq(reactions.isLiked,false)))
+    return res
+}
 
-module.exports = { likeDislikeBlog, removeReaction,blogLikedByUsers }
+
+module.exports = { likeDislikeBlog, removeReaction,blogLikedByUsers,blogDislikedByUsers }
