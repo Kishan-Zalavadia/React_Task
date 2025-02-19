@@ -7,7 +7,7 @@ const {authenticate} = require('./../../middleware/authvalidation')
 
 router.get('/',authenticate, userController.getAllUserPage)
 router.get('/:id',authenticate ,userController.getUserById)
-router.post('/',validation(createUserSchema) ,userController.addUser)
+// router.post('/',validation(createUserSchema) ,userController.addUser)
 router.delete('/:id',authenticate,userController.deleteUser)
 router.patch('/:id',authenticate, validation(updateUserSchema),userController.updateUser)
 
