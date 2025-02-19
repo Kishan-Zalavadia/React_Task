@@ -5,7 +5,19 @@ const getBlogByUserId = async (id, query) => {
   const { size, page } = query
   const numsize = Number(size) || null
   const offset = (page - 1) * size || 0
-  return await blogRepo.getBlogByUserId(id, numsize, offset);
+  const data = await blogRepo.getBlogByUserId(id, numsize, offset);
+  const records = await blogRepo.getBlogCountByUserId(id)
+  const pagination = {
+    totalRecords:Number(records[0].count),
+    previousPage:(page==1)?null:Number(page)-1,
+    currentPage : Number(page),
+    nextPage:(Math.ceil(records[0].count / size)>Number(page))?Number(page)+1:null,
+    totalPages: Math.ceil(records[0].count / size)
+  }
+  if(page>Math.ceil(records[0].count / size)){
+    return []
+  }
+  return {...data,pagination:pagination}
 }
 
 // Get all blogs Page
@@ -13,7 +25,19 @@ const getAllBlogPage = async (req) => {
   const { size, page } = req
   const numsize = Number(size) || null
   const offset = (page - 1) * size || 0
-  return await blogRepo.getAllBlogPage(numsize, offset)
+  const records = await blogRepo.getBlogCount()
+  const data = await blogRepo.getAllBlogPage(numsize, offset)
+  const pagination = {
+    totalRecords:Number(records[0].count),
+    previousPage:(page==1)?null:Number(page)-1,
+    currentPage : Number(page),
+    nextPage:(Math.ceil(records[0].count / size)>Number(page))?Number(page)+1:null,
+    totalPages: Math.ceil(records[0].count / size)
+  }
+  if(page>Math.ceil(records[0].count / size)){
+    return []
+  }
+  return {...data,pagination:pagination}
 }
 
 // Get Blog by ID

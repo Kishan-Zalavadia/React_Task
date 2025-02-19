@@ -1,4 +1,4 @@
-const userRepo = require('./userRespository')
+const userRepo = require('./userRepository')
 const bcrypt = require('bcrypt')
 
 // Get all users Page
@@ -6,8 +6,16 @@ const getAllUserPage = async (req) => {
   const {page,size} = req
   const numsize = size || null
   const offset = (page-1) * numsize || 0
-  console.log(typeof numsize,typeof offset)
-  return await userRepo.allUserPage(size,offset)
+  const data = await userRepo.allUserPage(size,offset)
+  const records = await userRepo.allUserCount()
+  const pagination = {
+    totalRecords:Number(records[0].count),
+    previousPage:Number(page)-1,
+    currentPage : Number(page),
+    nextPage: Number(page)+1,
+    totalPages: Math.ceil(records[0].count / size)
+  }
+  return {...data,pagination:pagination}
 }
 
 // Add a new user

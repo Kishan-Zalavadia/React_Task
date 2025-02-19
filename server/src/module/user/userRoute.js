@@ -3,11 +3,12 @@ const express = require('express')
 const {validation} = require('../../middleware/validator')
 const {createUserSchema,updateUserSchema } = require('../../validator/zodSchema/userSchema')
 const router = express.Router()
+const {authenticate} = require('./../../middleware/authvalidation')
 
-router.get('/', userController.getAllUserPage)
-router.get('/:id', userController.getUserById)
+router.get('/',authenticate, userController.getAllUserPage)
+router.get('/:id',authenticate ,userController.getUserById)
 router.post('/',validation(createUserSchema) ,userController.addUser)
-router.delete('/:id',userController.deleteUser)
-router.patch('/:id', validation(updateUserSchema),userController.updateUser)
+router.delete('/:id',authenticate,userController.deleteUser)
+router.patch('/:id',authenticate, validation(updateUserSchema),userController.updateUser)
 
 module.exports = router

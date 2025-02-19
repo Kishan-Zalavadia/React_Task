@@ -1,6 +1,7 @@
 const { users, blogs, comments, reactions } = require('./../../db/schema')
 const db = require('./../../config/index')
-const { eq, sql, ne, and } = require('drizzle-orm')
+const { eq, sql, ne, and } = require('drizzle-orm');
+const { getCommentsByBlogId } = require('../comment/commentRepository');
 
 const getBlogByUserId = async (id, numsize, offset) => {
   const blog = await db.select({
@@ -12,19 +13,22 @@ const getBlogByUserId = async (id, numsize, offset) => {
     isActive: blogs.isActive,
     likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`,
     dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`,
-    commentsCount: sql`COUNT(DISTINCT comments.id) FILTER (WHERE ${comments.isCommented} = true)`
+    commentsCount: sql`COUNT(DISTINCT comments.id)`
   })
     .from(blogs)
     .leftJoin(reactions, eq(blogs.id, reactions.blogId))
-    .leftJoin(comments, eq(blogs.id, comments.blogId))
+    .leftJoin(comments, and(eq(blogs.id, comments.blogId), eq(comments.isCommented, true)))
     .where(and(eq(blogs.userId, id), eq(blogs.isActive, true)))
     .groupBy(blogs.id)
     .limit(numsize)
     .offset(offset);
-    
-  return blog
+    for(i=0;i<blog.length;i++)
+      {
+        const comments = await getCommentsByBlogId(blog[i].id)
+        blog[i].comments = comments
+      }
+    return { data: blog }
 }
-
 
 // Get all Blogs with like and comment count
 const getAllBlogPage = async (numsize, offset) => {
@@ -37,18 +41,23 @@ const getAllBlogPage = async (numsize, offset) => {
     userId: blogs.userId,
     userName: users.firstName,
     isActive: blogs.isActive,
-    likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`, // Count likes
-    dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`, // Count dislikes
-    commentsCount: sql`COUNT(DISTINCT comments.id) FILTER (WHERE ${comments.isCommented} = true)` // Count unique comments
+    likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`,
+    dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`,
+    commentsCount: sql`COUNT(DISTINCT comments.id)`,
   }).from(blogs)
-    .leftJoin(users, eq(blogs.userId, users.id)) // Join users table
-    .leftJoin(reactions, eq(blogs.id, reactions.blogId)) // Join interactions (likes)
-    .leftJoin(comments, eq(blogs.id, comments.blogId)) // Join comments table
+    .leftJoin(users, eq(blogs.userId, users.id))
+    .leftJoin(reactions, eq(blogs.id, reactions.blogId))
+    .leftJoin(comments, and(eq(blogs.id, comments.blogId), eq(comments.isCommented, true)))
     .where(eq(blogs.isActive, true))
-    .groupBy(blogs.id, users.firstName)
+    .groupBy(blogs.id, users.id)
     .limit(numsize)
     .offset(offset);
-  return blog;
+    for(i=0;i<blog.length;i++)
+      {
+        const comments = await getCommentsByBlogId(blog[i].id)
+        blog[i].comments = comments
+      }
+  return { data: blog };
 }
 
 // Get Blog by ID
@@ -62,15 +71,20 @@ const getBlogById = async (id) => {
     userId: blogs.userId,
     userName: users.firstName,
     isActive: blogs.isActive,
-    likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`, // Count likes
-    dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`, // Count dislikes
-    commentsCount: sql`COUNT(DISTINCT comments.id)FILTER (WHERE ${comments.isCommented} = true)` // Count unique comments
+    likesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = true)`,
+    dislikesCount: sql`COUNT(DISTINCT reactions.id) FILTER (WHERE ${reactions.isLiked} = false)`,
+    commentsCount: sql`COUNT(DISTINCT comments.id)`
   }).from(blogs)
-    .leftJoin(users, eq(blogs.userId, users.id)) // Join users table
-    .leftJoin(reactions, eq(blogs.id, reactions.blogId)) // Join interactions (likes)
-    .leftJoin(comments, eq(blogs.id, comments.blogId)) // Join comments table
+    .innerJoin(users, eq(blogs.userId, users.id))
+    .leftJoin(reactions, eq(blogs.id, reactions.blogId))
+    .leftJoin(comments, and(eq(blogs.id, comments.blogId), eq(comments.isCommented, true)))
     .where(and(eq(blogs.id, id), eq(blogs.isActive, true)))
-    .groupBy(blogs.id, users.firstName)
+    .groupBy(blogs.id, users.id)
+    for(i=0;i<blog.length;i++)
+    {
+      const comments = await getCommentsByBlogId(blog[i].id)
+      blog[i].comments = comments
+    }
   return blog;
 }
 
@@ -93,4 +107,14 @@ const updateBlog = async (id, title, description) => {
   return result
 }
 
-module.exports = { getAllBlogPage, getBlogByUserId, getBlogById, addBlog, deleteBlog, updateBlog }
+// Get Blog Count
+const getBlogCount = async () => {
+  return await db.select({ count: sql`count(*)` }).from(blogs).where(eq(blogs.isActive,true))
+}
+
+//Get Blog Count By User ID
+const getBlogCountByUserId = async(id)=>{
+  return await db.select({count: sql`count(*)`}).from(blogs).where(and(eq(blogs.isActive,true),eq(blogs.userId,id)))
+}
+
+module.exports = {getBlogCountByUserId, getBlogCount, getAllBlogPage, getBlogByUserId, getBlogById, addBlog, deleteBlog, updateBlog }

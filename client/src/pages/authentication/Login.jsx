@@ -7,6 +7,8 @@ import { Box } from "@mui/material";
 import { useState } from "react";
 import { IconButton, InputAdornment, Button, CardHeader } from "@mui/material";
 export default function Login() {
+  const [email,setEmail] = useState('');
+  const [password,setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   return (
@@ -25,9 +27,10 @@ export default function Login() {
             <hr />
             <TextField
               id="outlined-basic"
-              label="UserName"
+              label="Email"
               variant="outlined"
               margin="normal"
+              onChange={e=>setEmail(e.target.value)}
               fullWidth
             />
             <TextField
@@ -35,6 +38,7 @@ export default function Login() {
               margin="normal"
               type={showPassword ? "text" : "password"}
               label="Password"
+              onChange={e=>setPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">

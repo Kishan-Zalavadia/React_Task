@@ -1,13 +1,18 @@
 const { users } = require('./../../db/schema')
 const db = require('./../../config/index')
-const { eq, and } = require('drizzle-orm')
+const { eq, and ,sql} = require('drizzle-orm')
 
 // Get all user page
 const allUserPage = async (size, offset) => {
   const pageSize = Number(size)
   const pageOffset = Number(offset)
   const user = await db.select().from(users).limit(pageSize).offset(pageOffset).where(eq(users.isActive, true));
-  return user;
+  return {data:user}
+}
+
+// Get all user count
+const allUserCount = async()=>{
+return await db.select({count:sql`count(*)`}).from(users)
 }
 
 // Get a user by ID
@@ -34,4 +39,10 @@ const updateUser = async (id, firstName, lastName, email, avatar) => {
   return result
 }
 
-module.exports = { getUserById, addUser, deleteUser, updateUser, allUserPage }
+// Get user by email
+const getUserByEmail = async(email)=>{
+  const result = await db.select().from(users).where(eq(users.email,email))
+  return result
+}
+
+module.exports = {getUserByEmail,allUserCount, getUserById, addUser, deleteUser, updateUser, allUserPage }
