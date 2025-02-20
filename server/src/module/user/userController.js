@@ -40,6 +40,9 @@ const addUser = async (req, res) => {
 // DELETE User by ID
 const deleteUser = async (req, res) => {
   try {
+    if(req.userId != req.params.id){
+      return res.status(403).json({message:'You can not delete others account'})
+    }
     const User = await userService.deleteUser(req.params.id)
     if (User.rowCount == 0){
       return res.status(404).json({ message: 'User not found' })
@@ -52,9 +55,11 @@ const deleteUser = async (req, res) => {
 
 // PATCH - Update User by ID
 const updateUser = async (req, res) => {
-  try {
-    const { id } = req.params  
-    const updatedUser = await userService.updateUser(id, req.body)
+  try {  
+    if(req.userId != req.params.id){
+      return res.status(403).json({message:'You have not access this route'})
+    }
+    const updatedUser = await userService.updateUser(req.params.id, req.body)
     if(updatedUser.length == 0) {
       return res.status(404).json({ message: 'User not found' })
     }

@@ -53,6 +53,9 @@ const addBlog = async (req, res) => {
 // DELETE Blog by ID
 const deleteBlog = async (req, res) => {
   try {
+    if(req.userId != req.params.id){
+      return res.status(403).json({message:'You can not access this route'})
+    }
     const result = await blogService.deleteBlog(req.params.id)
     console.log(result)
     if (result.rowCount == 0) {
@@ -67,8 +70,10 @@ const deleteBlog = async (req, res) => {
 // PATCH - Update Blog by ID
 const updateBlog = async (req, res) => {
   try {
-    const { id } = req.params
-    const updatedBlog = await blogService.updateBlog(id, req.body)
+    if(req.userId != req.params.id){
+      return res.status(403).json({message:'You can not delete others account'})
+    }
+    const updatedBlog = await blogService.updateBlog(req.params.id, req.body)
     if (updatedBlog.length == 0) {
       return res.status(404).json({ message: 'Blog not found' })
     }

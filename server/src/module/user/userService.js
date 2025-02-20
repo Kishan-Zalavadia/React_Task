@@ -10,10 +10,13 @@ const getAllUserPage = async (req) => {
   const records = await userRepo.allUserCount()
   const pagination = {
     totalRecords:Number(records[0].count),
-    previousPage:Number(page)-1,
+    previousPage:(Number(page)<1)?null:Number(page)-1,
     currentPage : Number(page),
-    nextPage: Number(page)+1,
+    nextPage:(Math.ceil(records[0].count / size)>Number(page))?Number(page)+1:null,
     totalPages: Math.ceil(records[0].count / size)
+  }
+  if(page>Math.ceil(records[0].count / size)){
+    return []
   }
   return {...data,pagination:pagination}
 }

@@ -8,7 +8,9 @@ const reactionRoutes = require('./src/module/reaction/reactionRoute')
 const authRoutes = require('./src/module/authentication/authRoutes')
 const port = 3000
 
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ["accessToken"]
+}));
 app.use(express.json())
 app.use('/', authRoutes)
 app.use('/user/', userRoutes)

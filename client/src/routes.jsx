@@ -10,7 +10,7 @@ export default function routes() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route element={<Layout />}>
-        <Route path="/user/profile" element={<Login/>} />
+        <Route path="/user/profile" element={<List/>} />
         <Route path="/user/list" element={<List />} />
         <Route path="/user/card" element={<CardList/>}/>
         </Route>

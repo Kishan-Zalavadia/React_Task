@@ -4,6 +4,9 @@ const reactionServide = require('./reactionService')
 const likeBlog = async (req, res) => {
     try {
         const { userId, blogId } = req.body
+        if(req.userId != userId){
+            return res.status(403).json({message:'You can access this route'})
+          }
         if (!userId || !blogId) {
             return res.status(400).json({ error: 'userId and blogId is reauqired' })
         }
@@ -18,6 +21,9 @@ const likeBlog = async (req, res) => {
 const dislikeBlog = async (req, res) => {
     try {
         const { userId, blogId } = req.body
+        if(req.userId != userId){
+            return res.status(403).json({message:'You can access this route'})
+          }
         if (!userId || !blogId) {
             return res.status(400).json({ error: 'userId and blogId is reauqired' })
         }
@@ -32,6 +38,9 @@ const dislikeBlog = async (req, res) => {
 const removeReaction = async (req, res) => {
     try {
         const { userId, blogId } = req.body
+        if(req.userId != userId){
+            return res.status(403).json({message:'You can access this route'})
+          }
         if (!userId || !blogId) {
             return res.status(400).json({ error: 'userId and blogId is reauqired' })
         }
