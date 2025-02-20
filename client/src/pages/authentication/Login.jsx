@@ -1,17 +1,41 @@
-import TextField from "@mui/material/TextField";
-import Card from "@mui/material/Card";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import CardContent from "@mui/material/CardContent";
-import { Box } from "@mui/material";
 import { useState } from "react";
-import { IconButton, InputAdornment, Button, CardHeader } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+import {
+  TextField,
+  Card,
+  CardContent,
+  Box,
+  IconButton,
+  InputAdornment,
+  Button,
+  CardHeader,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
+import axios from "axios";
+
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const navigate = useNavigate();
+
+  const validateUser = async () => {
+    const result = await axios.post("http://localhost:3000/login", {
+      email: email,
+      password: password,
+    });
+    if (result.status == 200) {
+      localStorage.setItem("accesstoken", result.headers.accesstoken);
+      navigate("/user/card");
+    }
+  };
+
   return (
     <>
-      <Box 
+      <Box
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -25,9 +49,10 @@ export default function Login() {
             <hr />
             <TextField
               id="outlined-basic"
-              label="UserName"
+              label="Email"
               variant="outlined"
               margin="normal"
+              onChange={(e) => setEmail(e.target.value)}
               fullWidth
             />
             <TextField
@@ -35,6 +60,7 @@ export default function Login() {
               margin="normal"
               type={showPassword ? "text" : "password"}
               label="Password"
+              onChange={(e) => setPassword(e.target.value)}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -52,6 +78,7 @@ export default function Login() {
               variant="contained"
               fullWidth
               style={{ padding: "11px 0px" }}
+              onClick={validateUser}
             >
               Login
             </Button>

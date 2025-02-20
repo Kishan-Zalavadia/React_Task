@@ -2,11 +2,11 @@ const { pgTable, varchar, uuid, text, timestamp, date, boolean } = require('driz
 
 const users = pgTable('users', {
     id: uuid().primaryKey().defaultRandom(),
-    firstName: varchar({ length: 20 }).notNull(),
-    lastName: varchar({ length: 25 }).notNull(),
-    email: varchar().notNull().unique(),
-    password: varchar().notNull(),
-    avatar: text(),
+    firstName: varchar({ length: 30 }).notNull(),
+    lastName: varchar({ length: 35 }).notNull(),
+    email: varchar({length:255}).notNull().unique(),
+    password: varchar({length:255}).notNull(),
+    avatar:varchar({length:2048}),
     refreshToken: text(),
     createdAt: timestamp().defaultNow(),
     updatedAt: timestamp(),
@@ -19,8 +19,8 @@ const users = pgTable('users', {
 const blogs = pgTable('blogs', {
     id: uuid().primaryKey().defaultRandom(),
     userId: uuid().references(() => users.id,{onDelete: 'cascade'}),
-    title: varchar().notNull(),
-    description: text().notNull(),
+    title: varchar({length:255}).notNull(),
+    description: varchar({length:1000}).notNull(),
     createdAt: timestamp().defaultNow(),
     updatedAt: timestamp(),
     deletedAt: timestamp(),
@@ -31,7 +31,7 @@ const comments = pgTable('comments', {
     id: uuid().primaryKey().defaultRandom(),
     userId: uuid().references(() => users.id,{onDelete: 'cascade'}),
     blogId: uuid().references(() => blogs.id,{onDelete: 'cascade'}),
-    content: text().notNull(),
+    content: varchar({length:255}).notNull(),
     commentedAt: timestamp().defaultNow(),
     deletedAt:timestamp(),
     isCommented:boolean().default(true)
@@ -41,7 +41,7 @@ const reactions = pgTable('reactions', {
     id: uuid().primaryKey().defaultRandom(),
     userId: uuid().references(() => users.id,{onDelete: 'cascade'}),
     blogId: uuid().references(() => blogs.id,{onDelete: 'cascade'}),
-    isLiked: boolean().default(true),
+    isLiked: boolean(),
     reactionAt: timestamp().defaultNow()
 })
 

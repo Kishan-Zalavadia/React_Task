@@ -1,33 +1,35 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import Card from "./card";
+import { useEffect, useRef, useState } from "react";
+
 import Grid from "@mui/material/Grid2";
+
 import axios from "axios";
+import Card from "./card";
+import { axiosReq } from "../axios/authRequest";
+
 
 export default function CardList() {
-
-  const [users, setUsers] = useState([]); 
-  const [loading, setLoading] = useState(false); 
-  const [page, setPage] = useState(1); 
-  const [hasMore, setHasMore] = useState(true); 
-  const observer = useRef(); 
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const lastpage = useRef(null)
 
   // Fetch users
   const GetUsers = async () => {
-    if (loading || !hasMore) return;
-
+    if (loading || page == null) return;
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/user?page=${page}`
-      );
-
-      if (response.status === 200) {
-        setUsers((prevUsers) => [...prevUsers, ...response.data]);
-        setPage((prevPage) => prevPage + 1);
-
-        if (response.data.length === 0) {
-          setHasMore(false);
+        `http://localhost:3000/user?page=${page}&size=${10}`,
+        {
+          headers: {
+            accesstoken: localStorage.getItem("accesstoken"),
+          },
         }
+      );
+      if (response.status === 200) {
+      // const response = await axiosReq({reqType:"get",})
+        setUsers((prevUsers) => [...prevUsers, ...response.data.data]);
+        setPage(response.data.pagination.nextPage);
       }
     } catch (error) {
       console.log(error);
@@ -35,47 +37,40 @@ export default function CardList() {
       setLoading(false);
     }
   };
-
-  // Infinite Scroll
-  const lastUserRef = useCallback(
-    (node) => {
-      if (loading) return;
-
-      if (observer.current) observer.current.disconnect();
-
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          GetUsers();
-        }
-      });
-
-      if (node) observer.current.observe(node);
-    },
-    [loading]
-  );
+  const checkdisplay=()=>{
+    const abc = lastpage.is_displayed()
+    console.log(abc)
+  }
 
   useEffect(() => {
     GetUsers();
   }, []);
-  
+
   return (
     <>
       {
         <Grid
           sx={{ justifyContent: "center", width: 1, marginTop: 3 }}
           container
-          spacing={{sx:1,sm:2,md:3,lg:4}}
+          spacing={{ xs: 1, sm: 2, md: 3, lg: 4 }}
           columns={{ xs: 1, sm: 3, md: 3, lg: 4 }}
+          
         >
           {users.map((user, index) => {
             return (
               <>
-                <div ref={index === users.length - 1 ? lastUserRef : null}>
-                  <Card key={user.userId} name={user.name} email={user.email} />
+                <div key={index} ref={index == (user.length - 1) ? checkdisplay:null} >
+                  <Card
+                    key={user.userId}
+                    name={user.name}
+                    email={user.email}
+                    avatar={user.avatar}
+                  />
                 </div>
               </>
             );
           })}
+          {loading && <div>Loding...</div>}
         </Grid>
       }
     </>
